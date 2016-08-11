@@ -50,6 +50,7 @@ $ kill `cat pid`   (2)
 >
 >$ bin/elasticsearch -Des.index.refresh_interval=5s --node.name=my-node
 > </pre>
+
 ### Java(JVM)版本
 
 ES是用java编写的，至少需要[java 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html)才能运行。只有Oracle的 Java和OpenJDK才被支持。所有的ES节点和客服端应该使用相同版本的JVM。
