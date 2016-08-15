@@ -65,4 +65,23 @@
 
 JVM创建垃圾回收日志文件的绝对路径。注意这个日志文件增长很快，因此默认禁用该参数。
 
+#### 基于RPM发行
+
+##### 使用 chkconfig
+
+一些基于RPM发行的包是使用`chkconfig`去禁用和启用服务。其初始化脚本位于`/etc/ini.d/elasticsearch`，配置文件放置在`/etc/sysconfig/elasticsearch`。和debian包（安装）一样，RPM包默认不会在安装之后启动，如果你想启动的话，你必须手动执行下面的命令：
+
+> **<pre>
+sudo /sbin/chkconfig --add elasticsearch
+sudo service elasticsearch start
+> </pre>**
+
+#### 使用 systemd
+
+发行版本如Debian Jessie，Ubuntu 14，和许多 SUSE衍生版本都不使用`chkconfig`工具来注册服务，而是使用`systemd`及其命令`/bin/systemctl` 去启动和停止服务（至少是在比较新的版本中，不然还是使用上面的`chkconfig`命令）。如果系统是基于rpm安装的，配置文件也在`/etc/sysconfig/elasticsearch`。如果是基于deb安装的，配置文件就在`/etc/default/elasticsearch`。在安装RPM包之后，你必须修改systemd配置然后才能启动ES。
+
+也要记住修改`/etc/sysconfig/elasticsearch`中的`MAX_MAP_COUNT`设置不会有任何效果，为了在启动时生效，你必须在`/usr/lib/sysctl.d/elasticsearch.conf`中修改它。
+
+
+
 
