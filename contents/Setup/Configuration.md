@@ -168,3 +168,41 @@ node:
 
 当ES进程作为服务运行或者在后台运行的时候，在设置中使用${prompt.text}`或者`${prompt.secret}`都会导致ES不能启动。
 
+### 索引设置
+
+在集群中创建的索引可以提供它们自己的设置。例如，下面创建了一个刷新间隔为5秒而不是默认的刷新间隔的索引（格式可以为YAML或者JSON）:
+
+> **<pre>
+$ curl -XPUT http://localhost:9200/kimchy/ -d \
+'
+index:
+    refresh_interval: 5s
+'
+> </pre>**
+
+在`elasticsearch.yml`中，索引级别的设置也可以设置在节点级别之上，像下面这样：
+
+> **<pre>
+index :
+    refresh_interval: 5s
+> </pre>**
+
+这意味着在特定的使用上面提到的配置的节点中创建的索引会使用5秒的刷新间隔，除非索引明确的设置刷新间隔。换句话说，任何索引级别的设置都会覆盖节点中的设置。当然，上面的设置也可以写成"折叠"形式的设置，例如：
+
+> **elasticsearch -Des.index.refresh_interval=5s**
+
+所有的索引级别配置可以在每个[索引模块](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)找到。
+
+### 日志记录
+
+ES利用log4j来抽离和开放内部日志。它试图通过使用[YAML](http://www.yaml.org/)来配置以简化log4j的配置，日志配置文件是`config/logging.yml`。JSON和属性格式也都是支持的。同时可以加载多个配置文件，只要都是以`.logging`作为前缀并且后缀是被支持的某一个（`.yml`,`.yaml`,`.json`，`.properties`）。logger区域包含了java包及其相应的日志级别，java包可能省略了`org.elasticsearch`前缀。appender区域包含了日志的目的地。关于如何让自定义日志和所有被支持的附加的大量信息都能在[log4j文档](http://logging.apache.org/log4j/1.2/manual.html)中找到。
+
+[log4j-extras](http://logging.apache.org/log4j/extras/)提供的其他附加器和日志类也都是可用和开放的。
+
+### 弃用的日志记录
+
+除了常规的日志记录，ES 运行你启用一些被弃用的行为的日志记录。例如，这让你你能早点决定在将来是否需要迁移某些功能。默认的，弃用的日志记录时被禁用的。你可以在`config/logging.yml`文件中设置弃用日志级别为`DEBUG`来启用。
+
+> **deprecation: DEBUG, deprecation_log_file**
+
+这会在你的日志目录中产生一个每天滚动的弃用日志文件。经常查看该文件，尤其在你想要升级到一个新的主要版本的时候。
