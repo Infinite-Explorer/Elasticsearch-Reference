@@ -46,3 +46,22 @@ The service 'elasticsearch-service-x64' has been installed.
 
 尽管JRE可以被ES服务使用，由于其使用了客户端虚拟机（相对于服务端JVM能为长久运行的应用提供更好的性能），其不备推荐使用并且会发出一个警告。
 
+### 自定义服务设置
+
+有两种自定义服务设置的方式：
+
+管理器图形用户界面
+
+通过`manager`命令访问，图形用户界面提供了洞察已安装服务的除其他东西外包括其状态，启动类型，JVM,启动和停止设置的能力。只需从命令行带上前面说的选项调用`service.bat`，就会打开管理器窗口：
+
+<img src="service-manager-win.png">
+
+自定义`service.bat`
+
+在其核心部分，`service.bat`依赖[Apache Commons Daemon](http://commons.apache.org/proper/commons-daemon/)项目去安装服务。为了完全的灵活性，例如自定义用户处在哪个运行的服务之下，这样就可以修改安装参数去调整所有的相关参数。记住为了使新的设置生效需要重装服务。
+
+#### 注意
+
+有社区支持的，可自定义的MSI安装器可以使用：
+
+[https://github.com/salyh/elasticsearch-msi-installer](https://github.com/salyh/elasticsearch-msi-installer)（by Hendrik Saly）。
