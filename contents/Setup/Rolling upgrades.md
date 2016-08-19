@@ -21,7 +21,7 @@ PUT /_cluster/settings
 
 ### 步骤2：停止不必要的索引操作并且执行一次(索引)同步刷新(可选)
 
-你可以在升级的时候愉快地继续索引数据。然而，如果你暂时停掉不必要的索引操作并发出一个[同步刷新](https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-synced-flush.html)的请求：
+你可以在升级的时候愉快地继续索引数据。然而，如果你暂时停掉不必要的索引操作并发出一个[同步刷新](https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-synced-flush.html)的请求，分片恢复会更快：
 
 > **POST /_flush/synced**
 
