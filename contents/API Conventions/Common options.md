@@ -41,4 +41,132 @@
 
 `2015-01-01`加上1个月，再向下取整最近的一天。
 
+### 响应过滤
+
+所有的ES REST API都支持`filter_path`参数，可以用来减少ES返回的响应内容。该参数值用逗号将点号表示的过滤器列表隔开：
+
+> **<pre>
+curl -XGET 'localhost:9200/_search?pretty&filter_path=took,hits.hits._id,hits.hits._score'
+{
+	  "took" : 3,
+	  "hits" : {
+	    "hits" : [
+	      {
+	        "_id" : "3640",
+	        "_score" : 1.0
+	      },
+	      {
+	        "_id" : "3642",
+	        "_score" : 1.0
+	      }
+	    ]
+	  }
+}
+> </pre>**
+
+也支持使用`*`通配符去匹配所有的字段或者字段名称的一部分：
+
+> <pre>
+curl -XGET 'localhost:9200/_nodes/stats?filter_path=nodes.*.ho*'
+{
+	  "nodes" : {
+	    "lvJHed8uQQu4brS-SXKsNA" : {
+	      "host" : "portable"
+	    }
+	  }
+}
+> </pre>
+
+还能使用`**`通配符去包含不知道具体路径的字段。例如，我们可以使用下面的请求返回每个段的Lucene版本：
+
+> <pre>
+curl 'localhost:9200/_segments?pretty&filter_path=indices.**.version'
+{
+	  "indices" : {
+	    "movies" : {
+	      "shards" : {
+	        "0" : [ {
+	          "segments" : {
+	            "_0" : {
+	              "version" : "5.2.0"
+	            }
+	          }
+	        } ],
+	        "2" : [ {
+	          "segments" : {
+	            "_0" : {
+	              "version" : "5.2.0"
+	            }
+	          }
+	        } ]
+	      }
+	    },
+	    "books" : {
+	      "shards" : {
+	        "0" : [ {
+	          "segments" : {
+	            "_0" : {
+	              "version" : "5.2.0"
+	            }
+	          }
+	        } ]
+	      }
+	    }
+	  }
+}
+> </pre>
+
+注意ES有时直接返回字段的原始值，例如`_source`字段。如果你想过滤`_source`字段，你应该考虑像下面这样结合已经存在的`_source`参数(更多详情请看[Get API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html#get-source-filtering))和`filter_path`参数：
+
+> **<pre>
+curl -XGET 'localhost:9200/_search?pretty&filter_path=hits.hits._source&_source=title'
+{
+	  "hits" : {
+	    "hits" : [ {
+	      "_source":{"title":"Book #2"}
+	    }, {
+	      "_source":{"title":"Book #1"}
+	    }, {
+	      "_source":{"title":"Book #3"}
+	    } ]
+	  }
+}
+> </pre>**
+
+### 扁平设置
+
+`flat_settings`标志影响着设置列表的展示。当`flat_settings`标志设为`true`时,设置列表以扁平格式返回：
+
+> **<pre>
+{
+    "persistent" : { },
+    "transient" : {
+      "discovery.zen.minimum_master_nodes" : "1"
+    }
+}
+> </pre>**
+
+当`flat_settings`标志设为`false`时，设置列表已人类可读的结构格式返回：
+
+> **<pre>
+{
+	  "persistent" : { },
+	  "transient" : {
+	    "discovery" : {
+	      "zen" : {
+	        "minimum_master_nodes" : "1"
+	      }
+	    }
+	  }
+}
+> </pre>**
+
+`flat_settings`默认为`false`。
+
+### 参数
+
+
+
+
+
 
