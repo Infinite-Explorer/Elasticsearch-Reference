@@ -38,3 +38,15 @@ $ curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
 #### 注意
 
 在索引操作成功返回（默认必须规定数量）的时候，可能并不是所有的副本分片都已经启动了的。在这种情况下，`total`字段值跟索引副本设置的总分片数一致，`successful`字段值跟启动的分片数（主分片加上副本分片）一致。由于没有失败发生，`failed`字段值为0。
+
+### 自动索引创建
+
+索引操作在索引还未创建之前（查看创建[索引API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html)）会自动创建，如果指定的类型还未创建映射（查看设置映射API，了解如何手动创建[类型映射](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html)）就会自动创建一个动态类型映射。
+
+映射自身是很灵活和模式自由的。新的字段和对象会自动加入到指定类型的映射定义中去。查看映射部分以获得关于映射定义的更多信息。
+
+自动索引创建可以通过在所有节点的配置文件中将`action.auto_crete_index`设为`false`来禁用掉。自动映射创建可以通过在所有节点的配置中将`index.mapper,dynamic`设置为`false`来禁用掉（或者是在指定的索引设置中进行设置）。
+
+自动索引创建可以引入基于模式的黑白名单，例如，将`action.auto_create_index`设为`+aaa*,-bbb*,+ccc*,-*`（+表示运行，-表示禁止）。
+
+### 版本
