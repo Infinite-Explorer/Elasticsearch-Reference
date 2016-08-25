@@ -50,3 +50,11 @@ $ curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
 自动索引创建可以引入基于模式的黑白名单，例如，将`action.auto_create_index`设为`+aaa*,-bbb*,+ccc*,-*`（+表示运行，-表示禁止）。
 
 ### 版本
+
+每一个被索引的文档都有一个版本号。相关联的`version`号作为索引API请求的响应内容的一部分返回。索引API在指定`version`参数的时候可允许乐观并发控制。这会控制将要执行操作的文文档的版本。一个关于版本好的用例是执行读取然后更新的事务操作。在开始读取文档的时候指定`version`可以确保同时不会出现变动（当为了之后的更新而读取的时候，建议将`perference`改为`_primary`）。例如：
+
+> **<pre>
+curl -XPUT 'localhost:9200/twitter/tweet/1?version=2' -d '{
+    "message" : "elasticsearch now has versioning support, double cool!"
+}'
+> </pre>**
