@@ -65,5 +65,77 @@ curl -XPUT 'localhost:9200/twitter/tweet/1?version=2' -d '{
 
 这样的一个好处是就算源数据库改变也不必维护异步索引操作执行的严格顺序，只要继续使用之前源数据库的版本号。如果使用外部版本号，即使使用数据库的数据更新ES索引的简单例子都会被简化，因为如果索引操作由于某种原因未能按照顺序的话，只有带最新的版本号的索引操作才能被执行。
 
+#### 版本类型
+
+除了上面解释的版本类型`internal`和`external`,对于具体使用情况ES也支持其他版本类型。下面是对于不同版本类型及其语义的概述。
+
+`internal`
+
+只有在提供的版本号跟已存储文档的版本号一样的时候才会索引文档。
+
+`external`或者`external_gt`
+
+只有在提供的版本号严格高于已存储文档的版本号或者不存在该文档时才会索引文档。提供的版本号会被用作新的版本号并被存储在新文档中。提供的版本号必须是非负长整型数字。
+
+`external_gte`
+
+只有在提供的版本号大于等于已存储文档的版本号时才会索引文档。如果不存在该文档，索引操作也会成功。提供的版本号会被用作新的版本号并被存储在新文档中。提供的版本号必须是非负长整型数字。
+
+`force`
+
+无论文档存在与否，文档都会被索引。即使存在也会在索引的时候忽略掉版本号的限制。提供的版本号会被用作新的版本号并被存储在新文档中。该版本类型常用来修改错误。
+
+**注意**：`external_gte`和`force`版本类型都是在特殊情况下使用的，应该谨慎使用。如果使用不当，会造成数据丢失。
+
+### 操作类型
+
+索引操作也可以使用`op_type`参数去强制进行`create`操作，类似于"如果不存在就创建"。当使用`create`的时候，如果索引中已经存在该id的文档，那么索引操作就会失败。
+
+下面是一个使用`op_type`参数的例子：
+
+> **<pre>
+$ curl -XPUT 'http://localhost:9200/twitter/tweet/1?op_type=create' -d '{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+> </pre>**
+
+另一个使用`create`操作类型的方法是使用下面的url：
+
+> **<pre>
+$ curl -XPUT 'http://localhost:9200/twitter/tweet/1/_create' -d '{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+> </pre>**
+
+### 自动生成ID
+
+索引操作执行的时候可以不用指定id。在这种情况下，id会自动生成。此外，`op_type`会被自动设为`create`。下面有一个例子（注意使用的是**POST**而不是**PUT**）：
+
+> **<pre>
+$ curl -XPOST 'http://localhost:9200/twitter/tweet/' -d '{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+> </pre>**
+
+上面操作的结果如下：
+
+> **<pre>
+{
+    "_index" : "twitter",
+    "_type" : "tweet",
+    "_id" : "6a8ca01c-7896-48e9-81cc-9f70661fcb32",
+    "_version" : 1,
+    "created" : true
+}
+> </pre>
+
+
+
 
 
