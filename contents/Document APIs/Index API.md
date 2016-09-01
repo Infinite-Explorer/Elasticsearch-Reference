@@ -135,6 +135,58 @@ $ curl -XPOST 'http://localhost:9200/twitter/tweet/' -d '{
 }
 > </pre>
 
+### 路由
+
+默认的，分片分配 —— 或者说是`routing` ——是由文档ID的哈希值来控制的。为了更明确的控制，可以在每个操作中使用`routing`参数直接指定传给哈希函数，供路由器使用的值。例如：
+
+
+> <pre>
+$ curl -XPOST 'http://localhost:9200/twitter/tweet?routing=kimchy' -d '{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+
+> </pre>
+
+在上边的例子中，"tweet"文档基于提供的`routing`参数"kimchy"被路由到一个分片上去。
+
+当建立了具体的映射，`_routing`字段可以可选地被用来指引索引操作从文档自身获取路由值。这确实也带来了额外的文档解析过程的（很小的）代价。如果定义了`_routing`映射并设为了`required`，如果没有提供或者获取到路由值，所有操作就会失败。
+
+### 父文档与子文档
+
+子文档可以在索引的时候指定其父文档。例如：
+
+> **<pre>
+$ curl -XPUT localhost:9200/blogs/blog_tag/1122?parent=1111 -d '{
+    "tag" : "something"
+}'
+> </pre>**
+
+在索引子文档的时候，路由值自动设为跟其父文档一致，除非使用了`routing`参数指明了路由值。
+
+### 时间戳
+
+#### 警告
+
+###### 在版本2.0.0-beta2中已被遗弃。
+
+`_timestamp`字段已被遗弃。取而代之，使用[`date`](https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html)字段设置其值。
+
+文档可以带着一个`timestamp`被索引。文档的`timestamp`值可以使用`timestamp`参数进行设置。例如：
+
+> **<pre>
+$ curl -XPUT localhost:9200/twitter/tweet/1?timestamp=2009-11-15T14%3A12%3A12 -d '{
+    "user" : "kimchy",
+    "message" : "trying out Elasticsearch"
+}'
+> </pre>**
+
+如果`timestamp`值没有从外部提供或者存在于`_source`参数中，`timestamp`会被自动设为文档被索引时的日期。更多信息请看关于 _timestamp 映射的页面。
+
+
+
+
 
 
 
