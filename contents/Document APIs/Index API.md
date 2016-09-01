@@ -34,10 +34,10 @@ $ curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
 * `failed` - 包含在副本分片上索引操作失败时，复制相关错误的数组。
 
 索引操作在`successful`字段值大于等于1时，即表示成功。
-
-#### 注意
-
-在索引操作成功返回（默认必须规定数量）的时候，可能并不是所有的副本分片都已经启动了的。在这种情况下，`total`字段值跟索引副本设置的总分片数一致，`successful`字段值跟启动的分片数（主分片加上副本分片）一致。由于没有失败发生，`failed`字段值为0。
+> 
+> #### 注意
+> 
+> 在索引操作成功返回（默认必须规定数量）的时候，可能并不是所有的副本分片都已经启动了的。在这种情况下，`total`字段值跟索引副本设置的总分片数一致，`successful`字段值跟启动的分片数（主分片加上副本分片）一致。由于没有失败发生，`failed`字段值为0。
 
 ### 自动索引创建
 
@@ -167,13 +167,13 @@ $ curl -XPUT localhost:9200/blogs/blog_tag/1122?parent=1111 -d '{
 
 ### 时间戳
 
-#### 警告
+> #### 警告
+> 
+> ###### 在版本2.0.0-beta2中已被遗弃。
+> 
+> `_timestamp`字段已被遗弃。取而代之，使用[`date`](https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html)字段设置其值。
 
-###### 在版本2.0.0-beta2中已被遗弃。
-
-`_timestamp`字段已被遗弃。取而代之，使用[`date`](https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html)字段设置其值。
-
-文档可以带着一个`timestamp`被索引。文档的`timestamp`值可以使用`timestamp`参数进行设置。例如：
+文档可以在索引的时候带上一个`timestamp`值。文档的`timestamp`值可以使用`timestamp`参数进行设置。例如：
 
 > **<pre>
 $ curl -XPUT localhost:9200/twitter/tweet/1?timestamp=2009-11-15T14%3A12%3A12 -d '{
@@ -182,7 +182,57 @@ $ curl -XPUT localhost:9200/twitter/tweet/1?timestamp=2009-11-15T14%3A12%3A12 -d
 }'
 > </pre>**
 
-如果`timestamp`值没有从外部提供或者存在于`_source`参数中，`timestamp`会被自动设为文档被索引时的日期。更多信息请看关于 _timestamp 映射的页面。
+如果`timestamp`值没有从外部提供或者存在于`_source`参数中，`timestamp`会被自动设为文档被索引时的日期。更多信息请看[关于 _timestamp 映射的页面](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-timestamp-field.html)。
+
+### TTL
+
+> #### 警告
+> 
+> ###### 在版本2.0.0-beta2中已被遗弃。
+> 
+> 现在的`_ttl`实现已被遗弃，会被以后版本的不同实现取代。
+
+
+文档可以在索引的时候带上一个`timestamp`值。过期的文档会被自动删除。文档的过期日期可以通过相对于文档`timestamp`值的`ttl`进行设置。`ttl`值必须为正数（秒）或者是像下面展示中的任一时间值：
+
+> **<pre>
+curl -XPUT 'http://localhost:9200/twitter/tweet/1?ttl=86400000' -d '{
+    "user": "kimchy",
+    "message": "Trying out elasticsearch, so far so good?"
+}'
+> </pre>**
+
+> **<pre>
+curl -XPUT 'http://localhost:9200/twitter/tweet/1?ttl=1d' -d '{
+    "user": "kimchy",
+    "message": "Trying out elasticsearch, so far so good?"
+}'
+> </pre>**
+
+> **<pre>
+curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
+    "_ttl": "1d",
+    "user": "kimchy",
+    "message": "Trying out elasticsearch, so far so good?"
+}'
+> </pre>**
+
+更多信息请看[关于_ttl 映射的页面](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-ttl-field.html)。
+
+### 分布式
+
+根据索引时的路由值（查看上面的路由部分），索引操作被引导到相应的主分片，并在包含该主分片的节点上执行操作。在主分片完成索引操作之后，如果有必要，相应的副本分片也会执行更新。
+
+### 写一致性
+
+为了避免写到网络分区的"错误"侧，默认的，只有当激活的分片的
+
+
+
+
+
+
+
 
 
 
