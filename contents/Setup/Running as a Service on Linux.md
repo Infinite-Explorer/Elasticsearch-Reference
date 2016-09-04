@@ -43,7 +43,7 @@
 
 `LOG_DIR`
 
-日志目录，默认为 `/var/log/elasticsearch`
+日志目录，默认为 `/var/log.txt/elasticsearch`
 
 `DATA_DIR`
 
