@@ -245,6 +245,16 @@ curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
 
 ### 超时
 
+被分配去执行索引操作的主分片在执行索引操作任务的时候可能并不能执行。这其中的原因可能是该主分片正在从网关恢复或者是正在重新分配数据中。默认的，索引操作在失败或者返回一个错误之前会等待该分片成为可用状态直到1分钟。`timeout`参数可以用来指定等待的具体时长。下面是设置等待时长为5分钟的例子：
+
+> **<pre>
+$ curl -XPUT 'http://localhost:9200/twitter/tweet/1?timeout=5m' -d '{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+> </pre>**
+
 
 
 
