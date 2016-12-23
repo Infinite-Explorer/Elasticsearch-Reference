@@ -71,3 +71,32 @@ curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
     }
 }'
 > </pre>**
+
+## 部分更新
+
+更新API还能够通过传入文档的一部分进行更新，该部分文档会被合并到现有的文档中去（简单递归合并，对象内部合并，替换键值对和数组）。如下：
+
+> **<pre>
+curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
+    "doc" : {
+        "name" : "new_name"
+    }
+}'
+> </pre>**
+
+如果`doc`和`script`都指定了，`doc`将会被忽略。最好的做法是将字段与部分文档成对的放到脚本中。
+
+## 检测空更新
+
+如果传入了`doc`，它的值将会和现成的`_source`进行合并。默认的，文档只有在新的`_source`字段和旧的不同时才会重新索引。将`detect_noop`设为`false`可以使ES即使在`_source`未改变的情况下也会进行更新。如下：
+
+> **<pre>
+curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
+    "doc" : {
+        "name" : "new_name"
+    },
+    "detect_noop": false
+}'
+> </pre>**
+
+如果上面的`name`在请求之前是`new_name`,文档还是会重新索引。
