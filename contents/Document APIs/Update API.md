@@ -100,3 +100,55 @@ curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
 > </pre>**
 
 如果上面的`name`在请求之前是`new_name`,文档还是会重新索引。
+
+### 更新插入
+
+如果文档不存在，则`upsert`部分的值会插入到一个新文档中。反之，`script`部分会被执行：
+
+> **<pre>
+curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
+    "script" : {
+        "inline": "ctx._source.counter += count",
+        "params" : {
+            "count" : 4
+        }
+    },
+    "upsert" : {
+        "counter" : 1
+    }
+}'
+> </pre>
+
+#### 使用脚本进行更新插入
+
+如果你无论文档存在与否都要执行脚本的话--即，脚本初始化文档，而不是更新插入元素 — 那么就将`scripted_upser`设为`true`：
+
+> **<pre>
+curl -XPOST 'localhost:9200/sessions/session/dh3sgudg8gsrgl/_update' -d '{
+    "scripted_upsert":true,
+    "script" : {
+        "id": "my_web_session_summariser",
+        "params" : {
+            "pageViewEvent" : {
+                "url":"foo.com/bar",
+                "response":404,
+                "time":"2014-01-01 12:32"
+            }
+        }
+    },
+    "upsert" : {}
+}'
+> </pre>**
+
+#### 将doc字段的值作为插入更新
+
+不是将部分`doc`字段值加上`upsert`字段值作为文档，而是通过设置`doc_as_upsert`为`true`以使`doc`字段的值作为`upsert`的值来使用:
+
+> **<pre>
+curl -XPOST 'localhost:9200/test/type1/1/_update' -d '{
+    "doc" : {
+        "name" : "new_name"
+    },
+    "doc_as_upsert" : true
+}'
+> </pre>**
